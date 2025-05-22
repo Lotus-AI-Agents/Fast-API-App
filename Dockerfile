@@ -1,4 +1,4 @@
-FROM python:">=3.10,<3.13"
+FROM python:">=3.10.0,<3.13.0"
 
 WORKDIR /app
 
