@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.responses import Response
 import httpx
 
 app = FastAPI()
@@ -24,9 +25,17 @@ async def relay_data(request: Request):
         async with httpx.AsyncClient() as client:
             response = await client.post(ZAPIER_WEBHOOK_URL, json=data)
 
-        return {"status": "success", "zapier_status": response.status_code}
+        # Return TwiML so Twilio doesn't return error 12300
+        twiml = """<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say>Your call has been received. Thank you!</Say>
+</Response>"""
+        return Response(content=twiml, media_type="application/xml")
 
     except Exception as e:
-        # If something goes wrong, log the error
         print("Error occurred:", str(e))
-        return {"status": "error", "details": str(e)}
+        error_twiml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say>Error: {str(e)}</Say>
+</Response>"""
+        return Response(content=error_twiml, media_type="application/xml")
