@@ -2,9 +2,11 @@ FROM python:3.11
 
 WORKDIR /app
 
-COPY . .
+COPY pyproject.toml poetry.lock ./
+RUN pip install --no-cache-dir poetry
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-root --no-dev
 
-RUN pip install --no-cache-dir --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
